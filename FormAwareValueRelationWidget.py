@@ -73,8 +73,8 @@ def FormValueFunc(value, context, parent):
     </ul>
     """
     try:
-        #log('FormValue(%s) %s' % (value, context.variable('FormValues').get(str(value), '')))
-        return context.variable('FormValues').get(str(value), '')
+        #log('FormValue(%s) %s' % (value, context.variable('FormValues').get(unicode(value), '')))
+        return context.variable('FormValues').get(unicode(value), '')
     except (AttributeError, NameError):
         return ''
 
@@ -122,7 +122,7 @@ def register_functionV2(function, arg_count, group, usesgeometry=False, **kwargs
                 else:
                     return self.function(values, context, parent)
             except Exception as ex:
-                parent.setEvalErrorString(str(ex))
+                parent.setEvalErrorString(unicode(ex))
                 return None
 
     helptemplate = string.Template("""<h3>$name function</h3><br>$doc""")
@@ -261,12 +261,12 @@ class FormAwareValueRelationWidgetWrapper(QgsEditorWidgetWrapper):
             for i in range(self.editor.count()):
                 item = self.editor.item( i )
                 if item.checkState() == Qt.Checked:
-                    selection.append(str(item.data( Qt.UserRole )))
+                    selection.append(unicode(item.data( Qt.UserRole )))
             v = '{%s}' %  ",".join(selection)
         elif isinstance(self.editor, QLineEdit):
             for f in self.mCache:
                 if f.attributes()[self.value_index] == self.editor.text():
-                    v = str(f.attributes()[self.key_index])
+                    v = unicode(f.attributes()[self.key_index])
         else:
             log('WARNING: no widgets!')
         log("Returning value %s" % v)
@@ -356,7 +356,7 @@ class FormAwareValueRelationWidgetWrapper(QgsEditorWidgetWrapper):
                 if self.expression.evaluate( self.context ):
                     cache.append( (unicode(f.attributes()[self.key_index]), unicode(f.attributes()[self.value_index])))
         else:
-            cache = [(str(f.attributes()[self.key_index]), str(f.attributes()[self.value_index])) for f in self.mCache]
+            cache = [(unicode(f.attributes()[self.key_index]), unicode(f.attributes()[self.value_index])) for f in self.mCache]
 
         if self.config( "OrderByValue" ) == '1':
             cache.sort(key=lambda x: x[1])
@@ -389,16 +389,16 @@ class FormAwareValueRelationWidgetWrapper(QgsEditorWidgetWrapper):
 
     def setValue(self, value):
         if isinstance(self.editor, QListWidget):
-            checkList = str(value)[1:-1].split( ',' )
+            checkList = unicode(value)[1:-1].split( ',' )
             for i in range(self.editor.count()):
                 item = self.editor.item( i )
-                item.setCheckState(Qt.Checked if str(item.data( Qt.UserRole )) in checkList else Qt.Unchecked)
+                item.setCheckState(Qt.Checked if unicode(item.data( Qt.UserRole )) in checkList else Qt.Unchecked)
         elif isinstance(self.editor, QComboBox):
             self.editor.setCurrentIndex( self.editor.findData( value ) )
         elif isinstance(self.editor, QLineEdit):
             for f in self.mCache:
-                if str(f.attributes()[self.key_index]) == str(value):
-                    self.editor.setText( str(f.attributes()[self.value_index]) )
+                if unicode(f.attributes()[self.key_index]) == unicode(value):
+                    self.editor.setText( unicode(f.attributes()[self.value_index]) )
                     break
 
     def createCache(self, force_creation=False):
